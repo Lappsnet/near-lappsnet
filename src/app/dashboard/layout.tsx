@@ -1,7 +1,7 @@
 // app/dashboard/layout.tsx
 "use client";
-
-import React, { useState } from "react";
+import "@near-wallet-selector/modal-ui/styles.css";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Bell,
@@ -18,6 +18,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+
+// Import Wallet Selector Modules
+import { setupWalletSelector } from "@near-wallet-selector/core";
+import { setupModal } from "@near-wallet-selector/modal-ui";
+import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
+import { setupMathWallet } from "@near-wallet-selector/math-wallet";
+import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { setupLedger } from "@near-wallet-selector/ledger";
+import { setupCoin98Wallet } from "@near-wallet-selector/coin98-wallet";
 
 type MenuItem = {
   name: string;
@@ -52,10 +61,45 @@ const menuItems: MenuItem[] = [
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  // State Variables
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>(["Dashboard"]);
 
+  // Wallet State
+  // eslint-disable-next-line no-unused-vars
+  const [selector, setSelector] = useState<any>(null);
+  const [modal, setModal] = useState<any>(null);
+  const [accountId, setAccountId] = useState<string | null>(null);
+
+  // Initialize Wallet Selector on Component Mount
+  useEffect(() => {
+    async function initWalletSelector() {
+      // Setup Wallet Selector with Desired Wallets
+      const walletSelector = await setupWalletSelector({
+        network: "testnet", // Change to 'testnet' if needed
+        modules: [
+          setupMyNearWallet(),
+          setupMathWallet(),
+          setupMeteorWallet(),
+          setupLedger(),
+          setupCoin98Wallet(),
+        ],
+      });
+
+      // Setup Modal UI for Wallet Selection
+      const modal = setupModal(walletSelector, {
+        contractId: "jhonnykro.testnet", // Replace with your NEAR contract ID
+      });
+
+      setSelector(walletSelector);
+      setModal(modal);
+    }
+
+    initWalletSelector();
+  }, []);
+
+  // Toggle Dark Mode
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     if (typeof document !== "undefined") {
@@ -63,10 +107,31 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  // Toggle Sidebar Menu Items
   const toggleExpand = (item: string) => {
     setExpandedItems((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
     );
+  };
+
+  // Connect Wallet Function
+  const connectWallet = async () => {
+    if (!modal) {
+      console.error("Wallet selector not initialized");
+      return;
+    }
+
+    try {
+      // Show Wallet Selection Modal
+      const { account } = await modal.show();
+
+      if (account) {
+        setAccountId(account.accountId);
+        console.log("Connected account:", account.accountId);
+      }
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+    }
   };
 
   return (
@@ -76,6 +141,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Header */}
       <header className="bg-black dark:bg-black shadow-md p-4 flex justify-between items-center">
         <div className="flex items-center">
+          {/* Sidebar Toggle Button (Visible on Mobile) */}
           <Button
             variant="ghost"
             size="icon"
@@ -88,6 +154,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <MenuIcon className="h-5 w-5 text-00ED97" />
             )}
           </Button>
+          {/* Dashboard Title */}
           <Link
             href="/dashboard"
             className="text-lg sm:text-2xl font-bold text-00ED97"
@@ -96,9 +163,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </Link>
         </div>
         <div className="flex items-center space-x-4">
-          <Button className="hidden sm:flex items-center justify-center w-32 sm:w-64 bg-[#00ED97] text-black hover:bg-green-500 transition-colors">
-            Action
+          {/* Connect Wallet Button */}
+          <Button
+            onClick={connectWallet}
+            className="hidden sm:flex items-center justify-center w-32 sm:w-64 bg-[#00ED97] text-black hover:bg-green-500 transition-colors"
+          >
+            {accountId ? `Connected: ${accountId}` : "Connect wallet"}
           </Button>
+          {/* Other Header Buttons */}
           <Button variant="ghost" size="icon" className="text-00ED97">
             <Search className="h-5 w-5" />
           </Button>
@@ -108,6 +180,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Button variant="ghost" size="icon" className="text-00ED97">
             <Settings className="h-5 w-5" />
           </Button>
+          {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"
