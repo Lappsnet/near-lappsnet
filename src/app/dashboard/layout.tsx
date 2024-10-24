@@ -4,11 +4,9 @@ import "@near-wallet-selector/modal-ui/styles.css";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Bell,
   ChevronDown,
   ChevronRight,
   Search,
-  Settings,
   Sun,
   Moon,
   Plus,
@@ -134,9 +132,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleNavigation = () => {
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
     <div
-      className={`flex flex-col h-screen ${isDarkMode ? "dark text-white" : ""}`}
+      className={`flex flex-col h-screen ${
+        isDarkMode ? "dark" : ""
+      } text-white`}
     >
       {/* Header */}
       <header className="bg-black dark:bg-black shadow-md p-4 flex justify-between items-center">
@@ -149,42 +155,46 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
             {isSidebarOpen ? (
-              <CloseIcon className="h-5 w-5 text-00ED97" />
+              <CloseIcon className="h-5 w-5 " />
             ) : (
-              <MenuIcon className="h-5 w-5 text-00ED97" />
+              <MenuIcon className="h-5 w-5 " />
             )}
           </Button>
           {/* Dashboard Title */}
           <Link
             href="/dashboard"
-            className="text-lg sm:text-2xl font-bold text-00ED97"
+            className="text-lg sm:text-2xl font-bold "
+            onClick={handleNavigation}
           >
             XFY Dashboard
           </Link>
         </div>
         <div className="flex items-center space-x-4">
-          {/* Connect Wallet Button */}
-          <Button
-            onClick={connectWallet}
-            className="hidden sm:flex items-center justify-center w-32 sm:w-64 bg-[#00ED97] text-black hover:bg-green-500 transition-colors"
-          >
-            {accountId ? `Connected: ${accountId}` : "Connect wallet"}
-          </Button>
+          {/* Connect Wallet Button (Visible en pantallas medianas y grandes) */}
+          <div className="hidden sm:flex items-center justify-center w-32 sm:w-64">
+            {accountId ? (
+              <span className="bg-[#00ED97] text-black px-3 py-1 rounded">
+                {`Connected: ${accountId}`}
+              </span>
+            ) : (
+              <Button
+                onClick={connectWallet}
+                className="bg-[#00ED97] text-black hover:bg-green-500 transition-colors"
+              >
+                Connect wallet
+              </Button>
+            )}
+          </div>
           {/* Other Header Buttons */}
-          <Button variant="ghost" size="icon" className="text-00ED97">
+          <Button variant="ghost" size="icon" className="">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-00ED97">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-00ED97">
-            <Settings className="h-5 w-5" />
-          </Button>
+
           {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="text-00ED97"
+            className=""
             onClick={toggleDarkMode}
             aria-label="Toggle Dark Mode"
           >
@@ -202,52 +212,108 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div
           className={`fixed inset-y-0 left-0 transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:translate-x-0 md:static md:inset-auto w-64 bg-black text-00ED97 p-4 transition-transform duration-200 ease-in-out z-50`}
+          } md:translate-x-0 md:static md:inset-auto w-64 bg-black text-white p-4 transition-transform duration-200 ease-in-out z-50 flex flex-col`}
         >
-          <nav className="mt-4">
+          <nav className="mt-4 flex-1">
             {menuItems.map((item) => (
               <div key={item.name} className="mb-2">
-                <Link href={item.href}>
-                  <Button
-                    variant="ghost"
-                    className={`flex items-center justify-between w-full p-3 rounded hover:bg-[#00ED97] hover:text-[#000] transition-colors`}
-                    onClick={() => toggleExpand(item.name)}
-                    data-tooltip-id={`tooltip-${item.name}`}
-                    data-tooltip-content={item.description}
-                  >
-                    <span className="flex items-center">
-                      {item.icon}
-                      <span className="ml-3 hidden md:block">{item.name}</span>
-                    </span>
-                    {expandedItems.includes(item.name) ? (
-                      <ChevronDown className="h-5 w-5" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5" />
-                    )}
-                  </Button>
-                </Link>
-                {/* Tooltip */}
-                <ReactTooltip id={`tooltip-${item.name}`} place="right" />
+                {item.subItems ? (
+                  // Menu Item with Submenu
+                  <>
+                    <button
+                      className={`flex items-center justify-between w-full p-3 rounded transition-colors ${
+                        expandedItems.includes(item.name)
+                          ? "bg-[#00ED97] text-black"
+                          : "text-white hover:bg-[#00ED97] hover:text-black"
+                      }`}
+                      onClick={() => toggleExpand(item.name)}
+                      data-tooltip-id={`tooltip-${item.name}`}
+                      data-tooltip-content={item.description}
+                    >
+                      <span className="flex items-center">
+                        {item.icon}
+                        <span className="ml-3">{item.name}</span>
+                      </span>
+                      {expandedItems.includes(item.name) ? (
+                        <ChevronDown className="h-5 w-5" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5" />
+                      )}
+                    </button>
+                    {/* Tooltip */}
+                    <ReactTooltip id={`tooltip-${item.name}`} place="right" />
 
-                {expandedItems.includes(item.name) && (
-                  <div className="ml-6 mt-1 space-y-1">
-                    {item.subItems.map((subItem) => (
-                      <Link key={subItem.name} href={subItem.href}>
-                        <Button
-                          variant="ghost"
-                          className={`block w-full text-left p-2 rounded hover:bg-[#00ED97] hover:text-[#333333] transition-colors`}
-                          data-tooltip-id={`tooltip-${subItem.name}`}
-                          data-tooltip-content={`Navigate to ${subItem.name}`}
-                        >
-                          {subItem.name}
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
+                    {expandedItems.includes(item.name) && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {item.subItems.map((subItem) => (
+                          <Link
+                            key={subItem.name}
+                            href={subItem.href}
+                            onClick={handleNavigation}
+                          >
+                            <Button
+                              variant="ghost"
+                              className="block w-full text-left p-2 rounded hover:bg-[#00ED97] hover:text-[#333333] transition-colors"
+                              data-tooltip-id={`tooltip-${subItem.name}`}
+                              data-tooltip-content={`Navigate to ${subItem.name}`}
+                            >
+                              {subItem.name}
+                            </Button>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Menu Item without Submenu
+                  <Link href={item.href} onClick={handleNavigation}>
+                    <Button
+                      variant="ghost"
+                      className={`flex items-center justify-between w-full p-3 rounded transition-colors hover:bg-[#00ED97] hover:text-black`}
+                      data-tooltip-id={`tooltip-${item.name}`}
+                      data-tooltip-content={item.description}
+                    >
+                      <span className="flex items-center">
+                        {item.icon}
+                        <span className="ml-3">{item.name}</span>
+                      </span>
+                    </Button>
+                  </Link>
+                )}
+                {/* Tooltip */}
+                {!item.subItems && (
+                  <ReactTooltip id={`tooltip-${item.name}`} place="right" />
                 )}
               </div>
             ))}
           </nav>
+
+          {/* Connect Wallet Button en la Barra Lateral */}
+          <div className="mt-auto">
+            {/* En Dispositivos Móviles: Mostrar siempre */}
+            <div className="flex sm:hidden w-full">
+              {accountId ? (
+                <span className="bg-[#00ED97] text-black px-3 py-1 rounded w-full text-center">
+                  {`Connected: ${accountId}`}
+                </span>
+              ) : (
+                <Button
+                  onClick={connectWallet}
+                  className="w-full bg-[#00ED97] text-black hover:bg-green-500 transition-colors"
+                >
+                  Connect wallet
+                </Button>
+              )}
+            </div>
+            {/* En Dispositivos de Escritorio: Mostrar solo si conectado */}
+            {accountId && (
+              <div className="hidden sm:block">
+                <span className="bg-[#00ED97] text-black px-3 py-1 rounded w-full text-center">
+                  {`Connected: ${accountId}`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Overlay for Mobile Sidebar */}
