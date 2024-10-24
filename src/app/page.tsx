@@ -7,6 +7,7 @@ import FeaturesAndBenefits from "@/components/features";
 import Faq from "@/components/faq";
 import NavbarV0 from "@/components/navbar";
 import { FooterV0 } from "@/components/footer";
+
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-between">
