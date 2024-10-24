@@ -17,7 +17,7 @@ export default function NavbarV0() {
   const handleCloseMenu = () => setIsOpen(false);
 
   return (
-    <header className="flex h-20 w-full mx-auto items-center justify-between px-4 md:px-6 bg-gradient-to-r from-[#0c1851f1] via-[#0C184D] to-[#060e31]  text-white ">
+    <header className="flex h-20 w-full mx-auto items-center justify-between px-4 md:px-6 bg-gradient-to-r from-[#00ED97] via-[#00ED97] to-[#00321f]  text-white ">
       {/* Mobile Menu */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
