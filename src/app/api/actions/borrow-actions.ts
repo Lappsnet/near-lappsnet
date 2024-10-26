@@ -1,45 +1,76 @@
-'use server'
+"use server";
 
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers";
+import { connect, KeyPair, keyStores, utils } from "near-api-js";
+import { KeyPairString } from "near-api-js/lib/utils";
 
-type BorrowParams = {
-  amount: string
-  termInDays: string
-  collateral: string
-}
+// NEAR configuration
+const nearConfig = {
+  networkId: "testnet", // or 'mainnet'
+  nodeUrl: "https://rpc.testnet.near.org",
+  walletUrl: "https://wallet.testnet.near.org",
+  helperUrl: "https://helper.testnet.near.org",
+  explorerUrl: "https://explorer.testnet.near.org",
+  // Add other necessary configurations
+};
 
-export async function borrow({ amount, termInDays, collateral }: BorrowParams): Promise<{ success: boolean; message: string }> {
-  const accountId = cookies().get('accountId')?.value
+// Initialize key store and account
+const initializeNear = async () => {
+  const keyStore = new keyStores.InMemoryKeyStore();
+  // Load your server's key pair (ensure this is secure)
+  const privateKey = process.env.NEAR_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error("NEAR_PRIVATE_KEY is not set");
+  }
+  const keyPair = KeyPair.fromString(privateKey as KeyPairString);
+  const accountId = process.env.NEAR_ACCOUNT_ID;
+  if (!accountId) {
+    throw new Error("NEAR_ACCOUNT_ID is not set");
+  }
+  await keyStore.setKey(nearConfig.networkId, accountId, keyPair);
+
+  const near = await connect({
+    ...nearConfig,
+    keyStore,
+  });
+
+  const account = await near.account(accountId);
+  return account;
+};
+
+export async function borrow({ amount, termInDays, collateral }: any) {
+  const accountId = cookies().get("accountId")?.value;
 
   if (!accountId) {
-    return { success: false, message: 'User not authenticated' }
+    return { success: false, message: "User not authenticated" };
   }
 
   try {
-    // This is a mock implementation. Replace with actual NEAR contract call.
-    const wallet = await import('@near-wallet-selector/core').then(m => m.setupWallet())
-    await wallet.signAndSendTransaction({
-      signerId: accountId,
-      receiverId: 'your-contract.testnet',
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName: 'borrow',
-            args: {
-              amount: (parseFloat(amount) * 1e24).toString(),
-              termInDays: parseInt(termInDays),
-            },
-            gas: '30000000000000',
-            deposit: (parseFloat(collateral) * 1e24).toString(),
-          },
-        },
-      ],
-    })
+    const account = await initializeNear();
 
-    return { success: true, message: 'Borrow successful!' }
+    // Define the contract and method
+    const contractId = "your-contract.testnet";
+    const methodName = "borrow";
+    const args = {
+      amount: utils.format.parseNearAmount(amount.toString()) || "0",
+      term_in_days: parseInt(termInDays, 10),
+    };
+    const gas = "30000000000000"; // 30 TGas
+    const deposit = utils.format.parseNearAmount(collateral.toString()) || "0";
+
+    // Create and send the transaction
+    const result = await account.functionCall({
+      contractId,
+      methodName,
+      args,
+      gas: BigInt(gas),
+      attachedDeposit: BigInt(deposit),
+    });
+
+    console.log("Transaction result:", result);
+    return { success: true, message: "Borrow successful!" };
   } catch (error) {
-    console.error('Borrow error:', error)
-    return { success: false, message: 'Borrow failed. Please try again.' }
+    console.error("Borrow error:", error);
+    return { success: false, message: "Borrow failed. Please try again." };
   }
 }
