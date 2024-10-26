@@ -28,7 +28,7 @@ export default function NavbarV0() {
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="flex flex-col bg-[#0B1853] text-white"
+          className="flex flex-col bg-[#000] border-0 text-white"
         >
           <SheetTitle></SheetTitle>
           <SheetDescription></SheetDescription>
