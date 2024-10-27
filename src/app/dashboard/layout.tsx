@@ -49,12 +49,31 @@ const menuItems: MenuItem[] = [
     name: "Loan Management",
     href: "/dashboard/loan-management",
     subItems: [
-      { name: "View Loans", href: "/dashboard/loan-management/view" },
-      { name: "Create Loan", href: "/dashboard/loan-management/create" },
       { name: "Loan Details", href: "/dashboard/loan-management/details" },
+      { name: "Create Loan", href: "/dashboard/loan-management/create" },
+      { name: "Withdraw", href: "/dashboard/loan-management/withdraw" },
+      { name: "Deposit", href: "/dashboard/loan-management/deposit" },
     ],
     icon: <Plus className="h-5 w-5" />,
     description: "Manage all loan-related activities",
+  },
+  {
+    name: "Bank Assets",
+    href: "/dashboard/bank-assets",
+    subItems: [
+      { name: "Tokenization", href: "/dashboard/bank-assets/tokenization" },
+    ],
+    icon: <Plus className="h-5 w-5" />,
+    description: "Tokenize your collateral assets",
+  },
+  {
+    name: "Reports",
+    href: "/dashboard/reports",
+    subItems: [
+      { name: "generate reports", href: "/dashboard/reports/generate-reports" },
+    ],
+    icon: <Plus className="h-5 w-5" />,
+    description: "Select a report type and generate a PDF report",
   },
 ];
 
