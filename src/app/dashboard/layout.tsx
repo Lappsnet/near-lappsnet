@@ -75,6 +75,33 @@ const menuItems: MenuItem[] = [
     icon: <Plus className="h-5 w-5" />,
     description: "Select a report type and generate a PDF report",
   },
+  {
+    name: "Community",
+    href: "/dashboard/community",
+    subItems: [
+      { name: "Community", href: "/dashboard/community/community-social" },
+    ],
+    icon: <Plus className="h-5 w-5" />,
+    description: "See what community says",
+  },
+  {
+    name: "Interest",
+    href: "/dashboard/interest",
+    subItems: [
+      { name: "Update interest", href: "/dashboard/interest-rate/update-rate" },
+    ],
+    icon: <Plus className="h-5 w-5" />,
+    description: "Interests rate",
+  },
+  {
+    name: "Insurance",
+    href: "/dashboard/insurance",
+    subItems: [
+      { name: "claim insurance", href: "/dashboard/insurance/claim-insurance" },
+    ],
+    icon: <Plus className="h-5 w-5" />,
+    description: "Claim insurance",
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
