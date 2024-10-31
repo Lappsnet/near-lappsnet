@@ -46,6 +46,16 @@ const menuItems: MenuItem[] = [
     description: "Main dashboard overview",
   },
   {
+    name: "Profile",
+    href: "/profile",
+    subItems: [
+      { name: "profile", href: "/dashboard/profile" },
+      { name: "Profile Management", href: "/dashboard/profile/profile-management" },
+    ],
+    icon: <ChevronRight className="h-5 w-5" />,
+    description: "Main dashboard overview",
+  },
+  {
     name: "Loan Management",
     href: "/dashboard/loan-management",
     subItems: [
@@ -62,9 +72,10 @@ const menuItems: MenuItem[] = [
     href: "/dashboard/bank-assets",
     subItems: [
       { name: "Tokenization", href: "/dashboard/bank-assets/tokenization" },
+      { name: "Integration", href: "/dashboard/bank-assets/integration" },
     ],
     icon: <Plus className="h-5 w-5" />,
-    description: "Tokenize your collateral assets",
+    description: "Tokenize your collateral assets and integrate it.",
   },
   {
     name: "Reports",
